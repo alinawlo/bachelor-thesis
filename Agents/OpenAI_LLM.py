@@ -12,7 +12,7 @@ os.environ['OPENAI_API_KEY'] = 'sk-I7duE7zlmczkkk5e0BFNT3BlbkFJCqqJF2JU4IFfpDBhe
 
 # Initialize the OpenAI model
 #llm = OpenAI(model_name='text-davinci-003', temperature=0.9, max_tokens=1000)
-llm= ChatOpenAI(model_name='gpt-4', temperature=0.3, max_tokens=3000)
+llm= ChatOpenAI(model_name='gpt-4', temperature=0.9, max_tokens=3000)
 
 
 # Define the scene template
@@ -40,21 +40,6 @@ d. Color it grass green in the Inspector window (RGB: 0, 200, 0)."
 
 Ensure all steps are complete and adhere to this format for a coherent scene layout.
 """
-# """
-# Using Unity, I want you to provide a step-by-step guide on how to create this scene: {scene_description}. 
-# The guide should suggest the overall size, dimensions of the scene's elements, and arrangement of the elements 
-# The guide should also be as technical and detailed as possible, without the need for Unity Editor Scripts.  
-
-# format each step like this code: 
-# /*step*/
-# @"Create the ground (grass):
-# a. Right-click in the Hierarchy, select 3D Object > Cube.
-# b. Rename and tag the Cube to ""Ground"".
-# c. Set the Transform Position to (0, 0, 0) and Scale to (10, 0.1, 10).
-# d. In the Inspector window, click on the Cube's Mesh Renderer component, then click on the color box next to the Albedo in the material settings. Set the color to a suitable grass color (e.g., RGB: 0, 200, 0)."
-
-# so before each @ /*step*/ should be typed
-# """
 
 # Create a prompt template
 prompt_temp = PromptTemplate(input_variables=["scene_description"], template=scene_template)

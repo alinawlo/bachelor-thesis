@@ -11,7 +11,7 @@ You have to generate an API key to use the ChatGPT API. Please generate it on
 your [account page](https://platform.openai.com/account/api-keys) and set it on
 the Project Settings page (Edit > Project Settings > AI Command > API Key).
 
-**CAUTION** - The API key is stored in `UserSettings/AISettings.asset`.
+**CAUTION** - The API key is stored in `UserSettings/AICommandSettings.asset`.
 You must exclude the directory when sharing your project with others.
 
 You can open the AI Command window from Window > AI Command.
@@ -42,7 +42,7 @@ See [AIShader issue #1] for details.
 
 [AIShader Issue #1]: https://github.com/keijiro/AIShader/issues/1
 
-### I pressed the "Run" button, resulting in compilation errors
+### I pressed the "Run" button, resulting in compilation errors.
 
 In many cases, ChatGPT fails to implement your command correctly. You might get
 the correct one by repeatedly pressing the "Run" button.

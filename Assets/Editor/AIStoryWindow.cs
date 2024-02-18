@@ -144,10 +144,53 @@ public sealed class AIStoryWindow : EditorWindow
             //GUI.enabled = true;
             if (GUILayout.Button("Run")) {
               EditorCoroutineUtility.StartCoroutine(DoSomething(), this);
-              myArray =
-                new string[] {
-                  run_cmd("Agents/OpenAI_LLM.py", "",_story).Split("/*step*/");
-                };
+
+          myArray = new string[] {
+    /*step*/
+    @"Create the Ground:
+    a. In the Project Window, navigate to the 'Assets/SimpleNaturePack/Prefabs' directory.
+    b. Drag and drop the 'Ground_01.prefab' into the Hierarchy.
+    c. In the Inspector Window, set the Transform's Position values to (0, 0, 0) to place it at the center of the scene.
+    d. Set the Scale values to (10, 1, 10) to make a large flat ground suitable for a garden scene.",
+    /*step*/
+    @"Create the first Trees:
+    a. In the Project Window, navigate to the 'Assets/SimpleNaturePack/Prefabs' directory.
+    b. Drag and drop the 'Tree_01.prefab' into the Hierarchy.
+    c. In the Inspector Window, set the Transform's Position values to (-2, 0, -2) to place it near the left-back corner of the ground.
+    d. Set the Scale values to (1, 1, 1).
+    e. Repeat steps b to d, but for the Position values use (2, 0, -2) to create the second tree and place it near the right-back corner of the ground.",
+    /*step*/
+    @"Create the Bushes:
+    a. In the Project Window, navigate to the 'Assets/SimpleNaturePack/Prefabs' directory.
+    b. Drag and drop the 'Bush_01.prefab' into the Hierarchy.
+    c. In the Inspector Window, set the Transform's Position values to (-3, 0, 0) to place it on the left side of the ground.
+    d. Set the Scale values to (1, 1, 1).
+    e. Repeat steps b to d, but for the Position values use (3, 0, 0) to create the second bush and place it on the right side of the ground.
+    f. Drag and drop the 'Bush_02.prefab' into the Hierarchy, set the Position values to (-1, 0, 2) and Scale values to (1, 1, 1).
+    g. Repeat step f, but for the Position values use (1, 0, 2) to create the second type of bush and place it in front of the ground.",
+    /*step*/
+    @"Create the Flowers:
+    a. In the Project Window, navigate to the 'Assets/SimpleNaturePack/Prefabs' directory.
+    b. Drag and drop the 'Flowers_01.prefab' into the Hierarchy.
+    c. In the Inspector Window, set the Transform's Position values to (-2, 0, 2) to place it left-front of the ground.
+    d. Set the Scale values to (1, 1, 1).
+    e. Repeat steps b to d, but for the Position values use (2, 0, 2) to create the second set of flowers and place it right-front of the ground.
+    f. Drag and drop the 'Flowers_02.prefab' into the Hierarchy, set the Position values to (0, 0, -2) and Scale values to (1, 1, 1).",
+    /*step*/
+    @"Create the Lighting:
+    a. Right-click in the Hierarchy, navigate to 'Light' and then select 'Directional Light'.
+    b. In the Inspector Window, set the Transform's Position values to (0, 10, 0) to place it above the ground.
+    c. Set the Scale values to (1, 1, 1)."
+};
+
+
+              //  myArray =
+                // new string[] {
+                // Step 1 "create project"
+                // run_cmd("Agents/OpenAI_LLM.py", "",_story).Split("/*step*/");
+                // Step 7 add lights but skips
+                // ... other steps if needed ...
+            // };
             }
         }
         else
@@ -179,6 +222,15 @@ public sealed class AIStoryWindow : EditorWindow
         yield return null;
 
         int maxRun = myArray.Length;
+        // for (int i = 1; i < maxRun; i++)
+        // {
+        //     string prompt = myArray[i];
+        //     _prompt = prompt;
+        //     doRepaint();
+        //     yield return null;
+        //     RunGenerator(prompt, i, maxRun-1);
+        //     yield return null;
+        // }
           for (int i = 1; i <= maxRun; i++)
         {
             string prompt = myArray[i-1];

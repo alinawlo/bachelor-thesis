@@ -15,8 +15,11 @@ public sealed class AIStoryWindow : EditorWindow
 {
     #region Temporary script file operations
 
-    const string TempFilePath = "Assets/Editor/AIStoryStep";
+    const string TempFilePath = "Assets/Editor/AIStoryStep.cs";
+    bool TempFileExists => System.IO.File.Exists(TempFilePath);
     const string TempFilePathEnd = "Temp.cs";
+    const string directoryPath = "Assets/SimpleNaturePack/Prefabs";
+
 
     void CreateStoryAsset(string storyStepFileNr, string storyStepCode)
     {
@@ -50,12 +53,19 @@ public sealed class AIStoryWindow : EditorWindow
          " - Class name and method name should have different names.\n" +
          " - Use UnityEditor.MenuItem.\n";
 
+    static string WrapToEdit(string input)
+      => "Write a Unity Editor script.\n" +
+         " - It provides its functionality as a menu item placed \"Edit\" > \"Do Task\".\n" +
+         " - It doesn’t provide any editor window. It immediately does the task when the menu item is invoked.\n" +
+         " - Do not use GameObject.FindGameObjectsWithTag(), use GameObject.FindObjectsOfType() instead.\n" +
+         " - Use renderer.sharedMaterial instead of renderer.material when creating objects.\n" +
+         " - There is no selected object. Find game objects manually.\n" +
+         " - I only need the script body. Don’t add any explanation.\n" +
+         " - Use UnityEditor.\n" +
+         "The task is described as follows:\n" + input;
+
+
     public string[] myArray;
-//      = new string[] { 
-// //Step 1 "create project"
-// _story
-// //Step 7 add lights but skips
-//     };
 
     void RunGenerator(string prompt, int i, int maxRun)
     {
@@ -87,8 +97,48 @@ public sealed class AIStoryWindow : EditorWindow
             code = code.Replace("c#", "");
 
             UnityEngine.Debug.Log("AI command script:" + code);
-            CreateStoryAsset(""+i, "/*Prompt:\n"+prompt+"*/\n\n"+code);
-        
+            CreateStoryAsset(""+i, "/*Prompt:\n"+prompt+"*/\n\n"+code);  
+    }
+
+    void RunGeneratorEdit(string prompt)
+    {
+        UnityEngine.Debug.Log("AI command script:" + prompt);
+        var code = OpenAIUtil2.InvokeChat(WrapToEdit(prompt));
+        // Define the regular expression pattern
+        string pattern = @"```csharp\n(.*?)\n```|(?:```)(.*?)(?:```)";
+        // Match the pattern against the input string
+        MatchCollection matches = Regex.Matches(code, pattern, RegexOptions.Singleline);
+
+        EditorGUILayout.HelpBox(pattern, MessageType.Error);
+        // Loop through the matches and extract the code
+        foreach (Match match in matches)
+        {
+            if (match.Groups[1].Success)
+            {
+                // Code is inside ```csharp``` tag
+                code = match.Groups[1].Value;
+                EditorGUILayout.HelpBox(code, MessageType.Error);
+            }
+            else if (match.Groups[2].Success)
+            {
+                // Code is inside ``` tag
+                code = match.Groups[2].Value;
+                EditorGUILayout.HelpBox("Code is inside: " + code, MessageType.Error);
+            }
+        }
+        code = code.Replace("C#", "");
+        code = code.Replace("c#", "");
+
+        UnityEngine.Debug.Log("AI command script:" + code);
+        CreateScriptAsset(code);
+    }
+
+    void CreateScriptAsset(string code)
+    {
+        // UnityEditor internal method: ProjectWindowUtil.CreateScriptAssetWithContent
+        var flags = BindingFlags.Static | BindingFlags.NonPublic;
+        var method = typeof(ProjectWindowUtil).GetMethod("CreateScriptAssetWithContent", flags);
+        method.Invoke(null, new object[]{TempFilePath, code});
     }
 
     #endregion
@@ -110,19 +160,24 @@ public sealed class AIStoryWindow : EditorWindow
     [MenuItem("Window/AI Story")]
     static void Init() => GetWindow<AIStoryWindow>(true, "AI Story");
 
+    private int _selectedLlmIndex = 0;
+    private readonly string[] llms = new string[] { "gpt-4", "llama-2", "Option 3" };
+    private int _selectedModeIndex = 0;
+    private readonly string[] modes = new string[] { "New Scene", "New Object", "Edit Object" };
+
     void OnGUI()
     {
         if (IsApiKeyOk)
         {
             //GUI.enabled = false;
 
-            GUIStyle myTextAreaStyle = new GUIStyle(EditorStyles.textArea);
-            myTextAreaStyle.wordWrap = true;
-            myTextAreaStyle.stretchHeight = true;
-            myTextAreaStyle.stretchWidth = true;
-            myTextAreaStyle.fixedHeight = 130;
-            myTextAreaStyle.fontSize = 14;
-            _statement = EditorGUILayout.TextArea(_statement, myTextAreaStyle);
+            EditorGUILayout.LabelField("Select a Functionality:", EditorStyles.boldLabel);
+            _selectedModeIndex = EditorGUILayout.Popup("Functionality:", _selectedModeIndex, modes);
+
+            EditorGUILayout.LabelField("Select a Language Model:", EditorStyles.boldLabel);
+            _selectedLlmIndex = EditorGUILayout.Popup("Model:", _selectedLlmIndex, llms);
+
+            EditorGUILayout.LabelField("Enter Your Prompt:", EditorStyles.boldLabel);
 
             GUIStyle myTextAreaStyle2 = new GUIStyle(EditorStyles.textArea);
             myTextAreaStyle2.wordWrap = true;
@@ -131,6 +186,8 @@ public sealed class AIStoryWindow : EditorWindow
             myTextAreaStyle2.fixedHeight = 250;
             myTextAreaStyle2.fontSize = 18;
             _story = EditorGUILayout.TextArea(_story,myTextAreaStyle2);
+
+            EditorGUILayout.LabelField("Running Step:", EditorStyles.boldLabel);
 
             GUIStyle myTextAreaStyle3 = new GUIStyle(EditorStyles.textArea);
             myTextAreaStyle3.wordWrap = true;
@@ -143,54 +200,17 @@ public sealed class AIStoryWindow : EditorWindow
 
             //GUI.enabled = true;
             if (GUILayout.Button("Run")) {
-              EditorCoroutineUtility.StartCoroutine(DoSomething(), this);
+              string[] fileNames = GetFileNames(directoryPath);
 
-          myArray = new string[] {
-    /*step*/
-    @"Create the Ground:
-    a. In the Project Window, navigate to the 'Assets/SimpleNaturePack/Prefabs' directory.
-    b. Drag and drop the 'Ground_01.prefab' into the Hierarchy.
-    c. In the Inspector Window, set the Transform's Position values to (0, 0, 0) to place it at the center of the scene.
-    d. Set the Scale values to (10, 1, 10) to make a large flat ground suitable for a garden scene.",
-    /*step*/
-    @"Create the first Trees:
-    a. In the Project Window, navigate to the 'Assets/SimpleNaturePack/Prefabs' directory.
-    b. Drag and drop the 'Tree_01.prefab' into the Hierarchy.
-    c. In the Inspector Window, set the Transform's Position values to (-2, 0, -2) to place it near the left-back corner of the ground.
-    d. Set the Scale values to (1, 1, 1).
-    e. Repeat steps b to d, but for the Position values use (2, 0, -2) to create the second tree and place it near the right-back corner of the ground.",
-    /*step*/
-    @"Create the Bushes:
-    a. In the Project Window, navigate to the 'Assets/SimpleNaturePack/Prefabs' directory.
-    b. Drag and drop the 'Bush_01.prefab' into the Hierarchy.
-    c. In the Inspector Window, set the Transform's Position values to (-3, 0, 0) to place it on the left side of the ground.
-    d. Set the Scale values to (1, 1, 1).
-    e. Repeat steps b to d, but for the Position values use (3, 0, 0) to create the second bush and place it on the right side of the ground.
-    f. Drag and drop the 'Bush_02.prefab' into the Hierarchy, set the Position values to (-1, 0, 2) and Scale values to (1, 1, 1).
-    g. Repeat step f, but for the Position values use (1, 0, 2) to create the second type of bush and place it in front of the ground.",
-    /*step*/
-    @"Create the Flowers:
-    a. In the Project Window, navigate to the 'Assets/SimpleNaturePack/Prefabs' directory.
-    b. Drag and drop the 'Flowers_01.prefab' into the Hierarchy.
-    c. In the Inspector Window, set the Transform's Position values to (-2, 0, 2) to place it left-front of the ground.
-    d. Set the Scale values to (1, 1, 1).
-    e. Repeat steps b to d, but for the Position values use (2, 0, 2) to create the second set of flowers and place it right-front of the ground.
-    f. Drag and drop the 'Flowers_02.prefab' into the Hierarchy, set the Position values to (0, 0, -2) and Scale values to (1, 1, 1).",
-    /*step*/
-    @"Create the Lighting:
-    a. Right-click in the Hierarchy, navigate to 'Light' and then select 'Directional Light'.
-    b. In the Inspector Window, set the Transform's Position values to (0, 10, 0) to place it above the ground.
-    c. Set the Scale values to (1, 1, 1)."
-};
-
-
-              //  myArray =
-                // new string[] {
-                // Step 1 "create project"
-                // run_cmd("Agents/OpenAI_LLM.py", "",_story).Split("/*step*/");
-                // Step 7 add lights but skips
-                // ... other steps if needed ...
-            // };
+                if(_selectedModeIndex==0){
+                  EditorCoroutineUtility.StartCoroutine(DoSomething(), this);
+                  myArray = run_cmd("Agents/OpenAI_LLM.py", "",_story, fileNames).Split("/*step*/");
+                }else if(_selectedModeIndex==1){
+                  EditorCoroutineUtility.StartCoroutine(DoSomething(), this);
+                  myArray = run_cmd("Agents/OpenAI_LLM_Object.py", "",_story, fileNames).Split("/*step*/");
+                }else if(_selectedModeIndex==2){
+                  RunGeneratorEdit(_story);
+                }
             }
         }
         else
@@ -222,15 +242,7 @@ public sealed class AIStoryWindow : EditorWindow
         yield return null;
 
         int maxRun = myArray.Length;
-        // for (int i = 1; i < maxRun; i++)
-        // {
-        //     string prompt = myArray[i];
-        //     _prompt = prompt;
-        //     doRepaint();
-        //     yield return null;
-        //     RunGenerator(prompt, i, maxRun-1);
-        //     yield return null;
-        // }
+  
           for (int i = 1; i <= maxRun; i++)
         {
             string prompt = myArray[i-1];
@@ -285,16 +297,26 @@ public sealed class AIStoryWindow : EditorWindow
     void OnAfterAssemblyReload()
     {
       EditorCoroutineUtility.StartCoroutine(DoRender(), this);
+      
+      if(_selectedModeIndex==2){
+        UnityEngine.Debug.Log("Temp File: " + TempFileExists);
+        if (!TempFileExists) return;
+          EditorApplication.ExecuteMenuItem("Edit/Do Task");
+          AssetDatabase.DeleteAsset(TempFilePath);
+      }
     }
+    
 
     #endregion
 
-    private string run_cmd(string cmd, string args, string description) {
+    private string run_cmd(string cmd, string args, string description, string[] fileNames) {
             string pythonPath = "/Users/ali/opt/anaconda3/bin/python"; // Path to python3 executable on macOS
+
+            string fileNamesString = String.Join(",", fileNames);
 
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = pythonPath;
-            start.Arguments = string.Format("{0} {1} \"{2}\"", cmd, args, description);
+            start.Arguments = string.Format("{0} {1} \"{2}\" \"{3}\"", cmd, args, description,fileNamesString);
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
 
@@ -304,6 +326,19 @@ public sealed class AIStoryWindow : EditorWindow
                     return result;
                 }
             }
+    }
+
+    private static string[] GetFileNames(string directoryPath) {
+        try
+        {
+            return Directory.GetFiles(directoryPath);
+        }
+        catch (IOException e)
+        {
+            Console.WriteLine("An IO exception has been thrown!");
+            Console.WriteLine(e.ToString());
+            return new string[0];
+        }
     }
 }
 

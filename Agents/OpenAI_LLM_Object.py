@@ -6,19 +6,21 @@ from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 
 
+# Print all received command-line arguments for debugging
+print("Received arguments:", sys.argv)
 
 # Set the OpenAI API key
 os.environ['OPENAI_API_KEY'] = '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'
 
 # Initialize the OpenAI model
-#llm = OpenAI(model_name='text-davinci-003', temperature=0.9, max_tokens=1000)
-llm= ChatOpenAI(model_name='gpt-4', temperature=0.3, max_tokens=3000)
+# llm = OpenAI(model_name='gpt-3.5-turbo-instruct', temperature=0, max_tokens=1000)
+llm= ChatOpenAI(model_name='gpt-4', temperature=0.1, max_tokens=2000)
 
 
 # Define the scene template
 scene_template = """
-Using Unity, please provide a step-by-step guide on creating a scene of a {scene_description} using the
-prefabs listed in the {assets_list}. Please suggest the overall size, dimensions of the scene's elements, and the arrangement of the elements.
+Using Unity, please provide a step-by-step guide on creating only the {object_description} using a
+prefab listed in the {assets_list}. Please suggest the overall size and dimensions.
 The guide should also be as technical and detailed as possible, without the need for Unity Editor Scripts.  
 
 
@@ -34,6 +36,8 @@ In your guide, please ensure that all steps are formulated as follows:
 9. Make sure that all elements are attached to the ground and are not flying around.
 10. The response should not require the need for Unity Editor Scripts or any specific functionality, interactivity, or navigation options.
 11. Always opt to use prefabs rather than creating the objects from scratch.
+12. Do not provide an introduction to the results.
+13. Only provide instructions to create the {object_description}.
 
 Please follow this format for each step in your guide to ensure clarity and consistency.
 
@@ -48,27 +52,35 @@ f. In the Inspector window, click on the Sphere's Mesh Renderer component.
 g. Click on the color box next to the Albedo in the material settings.
 h. Set the color to a blue shade (e.g., RGB: 0, 0, 255) to make it appear as a big blue ball."
 
-so before each @ /*step*/ should be typed
+so before the @ /*step*/ should be typed
 """
-
 # Create a prompt template
-prompt_temp = PromptTemplate(input_variables=["scene_description"], template=scene_template)
+prompt_temp = PromptTemplate(input_variables=["object_description", "assets_list"], template=scene_template)
 
 # Define the scene description
 #description = "a simple scene of a garden using cubes and spheres as 3D objects, with no specific color scheme. The garden should include grass, simple plants, simple trees, a pathway, and lanterns next to the pathway. The scene should be set during daytime."
 if len(sys.argv) > 1:
     description = sys.argv[1]
 else:
-    description = "a simple scene of a garden and a blue ball"
+    description = "a blue circle"
 
-# Format the prompt with the scene description
-formatted_prompt = prompt_temp.format(scene_description=description)
+assets_list_string = sys.argv[2] if len(sys.argv) > 2 else "cubes,spheres"
+
+# Split the assets list string into an array
+assets_list = assets_list_string.split(',')
+
+# Format the assets list for the prompt
+formatted_assets_list = ', '.join([f'"{asset}"' for asset in assets_list])
+
+# Format the prompt with the scene description and assets list
+formatted_prompt = prompt_temp.format(object_description=description, assets_list=formatted_assets_list)
 
 # Initialize the language model chain
 chain = LLMChain(llm=llm, prompt=prompt_temp)
 
-#  Generate the guide
-generated_guide = chain.run(description)
+# Generate the guide by passing a dictionary
+input_dict = {"object_description": description, "assets_list": formatted_assets_list}
+generated_guide = chain.run(input_dict)
 
 # Print each step
 print(generated_guide)

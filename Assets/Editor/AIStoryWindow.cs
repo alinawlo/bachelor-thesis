@@ -129,7 +129,7 @@ public sealed class AIStoryWindow : EditorWindow
         code = code.Replace("C#", "");
         code = code.Replace("c#", "");
 
-        UnityEngine.Debug.Log("AI command script:" + code);
+        //UnityEngine.Debug.Log("AI command script:" + code);
         CreateScriptAsset(code);
     }
 
@@ -207,7 +207,7 @@ public sealed class AIStoryWindow : EditorWindow
                   myArray = run_cmd("Agents/OpenAI_LLM.py", "",_story, fileNames).Split("/*step*/");
                 }else if(_selectedModeIndex==1){
                   EditorCoroutineUtility.StartCoroutine(DoSomething(), this);
-                  myArray = run_cmd("Agents/OpenAI_LLM_Object.py", "",_story, fileNames).Split("/*step*/");
+                  myArray = new string [] {run_cmd("Agents/OpenAI_LLM_Object.py", "",_story, fileNames)};
                 }else if(_selectedModeIndex==2){
                   RunGeneratorEdit(_story);
                 }
@@ -272,7 +272,7 @@ public sealed class AIStoryWindow : EditorWindow
                 UnityEngine.Debug.LogWarning("Menu item execution failed.");
               }
               System.Threading.Thread.Sleep(1000);
-              //AssetDatabase.DeleteAsset(storyStepScriptFileName);
+              AssetDatabase.DeleteAsset(storyStepScriptFileName);
               //get filename from path
               string fileName = Path.GetFileName(storyStepScriptFileName);
               AssetDatabase.RenameAsset(storyStepScriptFileName, fileName+".bak");

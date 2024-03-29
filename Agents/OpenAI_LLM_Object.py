@@ -23,7 +23,7 @@ The guide should also be as technical and detailed as possible, without the need
 In your guide, please ensure that all steps are formulated as follows:
 1. Clearly state the action to be performed (e.g., "Create a tree using Editor/Tree_01.prefab").
 2. Provide specific instructions on where to click and what to select.
-3. Specify the values for the element's scale (e.g., "Set the and Scale to (1, 0.1, 1) for the first pathway segment").
+3. Specify the values for the element's scale (e.g., "Set the Scale to (1, 0.1, 1) for the first pathway segment").
 4. Specify the values for the element's  transform position (e.g., "Set the Transform Position to (0, 0.1, 0)").
 5. Provide a substep for elements written in plural that need to be duplicated (e.g., "Duplicate 'Pathway1' in the Hierarchy to create more pathway segments, adjusting their Transform Positions to create a continuous pathway through the garden").
 6. Make sure to use the same asset for duplicate elements.
@@ -52,7 +52,6 @@ h. Set the color to a blue shade (e.g., RGB: 0, 0, 255) to make it appear as a b
 prompt_temp = PromptTemplate(input_variables=["object_description", "assets_list"], template=scene_template)
 
 # Define the scene description
-#description = "a simple scene of a garden using cubes and spheres as 3D objects, with no specific color scheme. The garden should include grass, simple plants, simple trees, a pathway, and lanterns next to the pathway. The scene should be set during daytime."
 if len(sys.argv) > 1:
     description = sys.argv[1]
 else:

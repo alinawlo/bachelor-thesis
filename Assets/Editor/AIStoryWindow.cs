@@ -16,7 +16,7 @@ public sealed class AIStoryWindow : EditorWindow
     #region Temporary script file operations
 
     const string TempFilePath = "Assets/Editor/AIStoryStep.cs";
-    bool TempFileExists => System.IO.File.Exists(TempFilePath);
+    private bool TempFileExists => System.IO.File.Exists(TempFilePath);
     const string TempFilePathEnd = "Temp.cs";
     const string directoryPath = "Assets/SimpleNaturePack/Prefabs";
 
@@ -65,13 +65,20 @@ public sealed class AIStoryWindow : EditorWindow
          "The task is described as follows:\n" + input;
 
 
-    public string[] myArray;
+    private string[] myArray;
 
-    void RunGenerator(string prompt, int i, int maxRun)
+    void RunGenerator(string prompt, int i, int maxRun, bool shapes)
     {
             UnityEngine.Debug.Log(prompt);
-            var code = OpenAIUtil.InvokeChat(SystemContext(), WrapPrompt(prompt),
-            "AI Story", "Generate Step "+i+"/"+maxRun);
+            
+            var code = OpenAIScriptGenerator.InvokeChat(SystemContext(), WrapPrompt(prompt),
+              "AI Story", "Generate Step "+i+"/"+maxRun);  
+            
+            if(shapes){
+              code = OpenAIShapesGenerator.InvokeChat(SystemContext(), WrapPrompt(prompt),
+              "AI Story", "Generate Step "+i+"/"+maxRun);
+            }
+
             // Define the regular expression pattern
             string pattern = @"```csharp\n(.*?)\n```|(?:```)(.*?)(?:```)";
             // Match the pattern against the input string
@@ -101,9 +108,9 @@ public sealed class AIStoryWindow : EditorWindow
     }
 
     void RunGeneratorEdit(string prompt)
-    {
+    {   
         UnityEngine.Debug.Log("AI command script:" + prompt);
-        var code = OpenAIUtil2.InvokeChat(WrapToEdit(prompt));
+        var code = OpenAIUtil.InvokeChat(WrapToEdit(prompt));
         // Define the regular expression pattern
         string pattern = @"```csharp\n(.*?)\n```|(?:```)(.*?)(?:```)";
         // Match the pattern against the input string
@@ -138,14 +145,13 @@ public sealed class AIStoryWindow : EditorWindow
         // UnityEditor internal method: ProjectWindowUtil.CreateScriptAssetWithContent
         var flags = BindingFlags.Static | BindingFlags.NonPublic;
         var method = typeof(ProjectWindowUtil).GetMethod("CreateScriptAssetWithContent", flags);
-        method.Invoke(null, new object[]{TempFilePath, code});
+        method.Invoke(null, new object[]{TempFilePath+"edit", code});
     }
 
     #endregion
 
     #region Editor GUI
 
-    string _statement = "As a AI-powered Software Developer,\nI want to demonstrate the power of AI in software development through a Unity demo, showcasing how machine learning can improve user experience,\nso that I can inspire and educate others on the potential of this technology.";
     static string _story ="";
     // = "As a Unity 3D developer, I want to create a simple start scene of a garden using cubes and spheres as 3D objects, with no specific color scheme. The garden should include grass, simple plants, simple trees, a pathway, and lanterns next to the pathway. The scene should be set during daytime. Please provide a step-by-step guide on how to create this simple garden scene with suggested overall size, dimensions of the garden elements, and arrangement of the elements. The response should be as technical and detailed as possible, without the need for Unity Editor Scripts. No specific functionality, interactivity, or navigation options are required.";
     private string _prompt = "";
@@ -160,10 +166,10 @@ public sealed class AIStoryWindow : EditorWindow
     [MenuItem("Window/AI Story")]
     static void Init() => GetWindow<AIStoryWindow>(true, "AI Story");
 
-    private int _selectedLlmIndex = 0;
-    private readonly string[] llms = new string[] { "gpt-4", "llama-2", "Option 3" };
     private int _selectedModeIndex = 0;
     private readonly string[] modes = new string[] { "New Scene", "New Object", "Edit Object" };
+
+    private bool shapes = false;
 
     void OnGUI()
     {
@@ -171,11 +177,15 @@ public sealed class AIStoryWindow : EditorWindow
         {
             //GUI.enabled = false;
 
-            EditorGUILayout.LabelField("Select a Functionality:", EditorStyles.boldLabel);
-            _selectedModeIndex = EditorGUILayout.Popup("Functionality:", _selectedModeIndex, modes);
+            EditorGUILayout.LabelField("Conifgurations:", EditorStyles.boldLabel);
+            _selectedModeIndex = EditorGUILayout.Popup("Mode:", _selectedModeIndex, modes);
 
-            EditorGUILayout.LabelField("Select a Language Model:", EditorStyles.boldLabel);
-            _selectedLlmIndex = EditorGUILayout.Popup("Model:", _selectedLlmIndex, llms);
+            shapes = EditorGUILayout.Toggle("3D Shapes:", shapes);
+            if(!shapes){
+              EditorGUILayout.LabelField("(using prefabs)");
+            }else{            
+              EditorGUILayout.LabelField("");
+            }
 
             EditorGUILayout.LabelField("Enter Your Prompt:", EditorStyles.boldLabel);
 
@@ -200,17 +210,32 @@ public sealed class AIStoryWindow : EditorWindow
 
             //GUI.enabled = true;
             if (GUILayout.Button("Run")) {
-              string[] fileNames = GetFileNames(directoryPath);
+              EditorCoroutineUtility.StartCoroutine(ClearTempFiles(),this);
 
+              string[] fileNames = GetFileNames(directoryPath);
+              SaveJsonToFile(_story);
+              
+              if(shapes){
                 if(_selectedModeIndex==0){
-                  EditorCoroutineUtility.StartCoroutine(DoSomething(), this);
+                  EditorCoroutineUtility.StartCoroutine(GenerateSteps(shapes), this);
+                  myArray = run_cmd("Agents/OpenAI_LC_Shapes.py", "",_story, fileNames).Split("/*step*/");
+                }else if(_selectedModeIndex==1){
+                  EditorCoroutineUtility.StartCoroutine(GenerateSteps(shapes), this);
+                  myArray = new string [] {run_cmd("Agents/OpenAI_LC_Shapes_Object.py", "",_story, fileNames)};
+                }
+              } else{
+                if(_selectedModeIndex==0){
+                  EditorCoroutineUtility.StartCoroutine(GenerateSteps(shapes), this);
                   myArray = run_cmd("Agents/OpenAI_LLM.py", "",_story, fileNames).Split("/*step*/");
                 }else if(_selectedModeIndex==1){
-                  EditorCoroutineUtility.StartCoroutine(DoSomething(), this);
+                  EditorCoroutineUtility.StartCoroutine(GenerateSteps(shapes), this);
                   myArray = new string [] {run_cmd("Agents/OpenAI_LLM_Object.py", "",_story, fileNames)};
-                }else if(_selectedModeIndex==2){
-                  RunGeneratorEdit(_story);
                 }
+              }
+                
+              if(_selectedModeIndex==2){                  
+                RunGeneratorEdit(_story);
+              }
             }
         }
         else
@@ -223,13 +248,12 @@ public sealed class AIStoryWindow : EditorWindow
       this.Repaint();
     }
 
-    private System.Collections.IEnumerator DoSomething()
+    private System.Collections.IEnumerator GenerateSteps(bool shapes)
     {
         UnityEngine.Debug.Log("Coroutine started!");
         _prompt = "";
         doRepaint();
-        // Progress bar (Totally fake! Don't try this at home.)
-        // pre processed due to missing access to GPT4 via API
+        // Progress bar, not accurate
         var progress = 0.1f;
         for (var i = 0; i < 3; i++)
         {
@@ -249,7 +273,7 @@ public sealed class AIStoryWindow : EditorWindow
             _prompt = prompt;
             doRepaint();
             yield return null;
-            RunGenerator(prompt, i, maxRun);
+            RunGenerator(prompt, i, maxRun, shapes);
             yield return null;
         }
         _prompt = "";
@@ -258,7 +282,7 @@ public sealed class AIStoryWindow : EditorWindow
         UnityEngine.Debug.Log("Coroutine ended!");
     }
 
-    private System.Collections.IEnumerator DoRender()
+    private System.Collections.IEnumerator ExecuteScripts()
     {
         int maxRun = myArray.Length;
         for (int i = 1; i <= maxRun; i++)
@@ -272,7 +296,7 @@ public sealed class AIStoryWindow : EditorWindow
                 UnityEngine.Debug.LogWarning("Menu item execution failed.");
               }
               System.Threading.Thread.Sleep(1000);
-              AssetDatabase.DeleteAsset(storyStepScriptFileName);
+              //AssetDatabase.DeleteAsset(storyStepScriptFileName);
               //get filename from path
               string fileName = Path.GetFileName(storyStepScriptFileName);
               AssetDatabase.RenameAsset(storyStepScriptFileName, fileName+".bak");
@@ -296,13 +320,13 @@ public sealed class AIStoryWindow : EditorWindow
 
     void OnAfterAssemblyReload()
     {
-      EditorCoroutineUtility.StartCoroutine(DoRender(), this);
+      EditorCoroutineUtility.StartCoroutine(ExecuteScripts(), this);
       
       if(_selectedModeIndex==2){
         UnityEngine.Debug.Log("Temp File: " + TempFileExists);
         if (!TempFileExists) return;
           EditorApplication.ExecuteMenuItem("Edit/Do Task");
-          AssetDatabase.DeleteAsset(TempFilePath);
+          AssetDatabase.DeleteAsset(TempFilePath+"edit");
       }
     }
     
@@ -316,7 +340,11 @@ public sealed class AIStoryWindow : EditorWindow
 
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = pythonPath;
-            start.Arguments = string.Format("{0} {1} \"{2}\" \"{3}\"", cmd, args, description,fileNamesString);
+            if(shapes){
+              start.Arguments = string.Format("{0} {1} \"{2}\"", cmd, args, description);
+            }else{
+              start.Arguments = string.Format("{0} {1} \"{2}\" \"{3}\"", cmd, args, description,fileNamesString);
+            }
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
 
@@ -329,17 +357,76 @@ public sealed class AIStoryWindow : EditorWindow
     }
 
     private static string[] GetFileNames(string directoryPath) {
-        try
-        {
-            return Directory.GetFiles(directoryPath);
-        }
-        catch (IOException e)
-        {
-            Console.WriteLine("An IO exception has been thrown!");
-            Console.WriteLine(e.ToString());
-            return new string[0];
-        }
+      try
+      {
+          return Directory.GetFiles(directoryPath);
+      }
+      catch (IOException e)
+      {
+        Console.WriteLine("An IO exception has been thrown!");
+        Console.WriteLine(e.ToString());
+        return new string[0];
+      }
     }
+    
+    System.Collections.IEnumerator ClearTempFiles() {
+      string editorFolderPath = "Assets/Editor";
+      
+      if (Directory.Exists(editorFolderPath))
+      {
+          string[] files = Directory.GetFiles(editorFolderPath);
+          
+          foreach (string file in files)
+          {
+            if (Path.GetFileName(file).StartsWith("AIStoryStep"))
+            {
+                File.Delete(file);
+                UnityEngine.Debug.Log("Deleted file: " + file);
+            }
+          }
+          AssetDatabase.Refresh();
+          UnityEngine.Debug.Log("All files in 'Assets/Editor' have been deleted.");
+      }
+      else
+      {
+          UnityEngine.Debug.LogWarning("'Assets/Editor' directory does not exist or was not found.");
+      }
+      yield return new WaitForSeconds(10);
+    }
+
+
+
+
+
+    static void SaveJsonToFile(string jsonString)
+    {
+        // // Path to save the file within your Unity project. Adjust the path as necessary.
+        // string path = Application.dataPath + "/json2.txt";
+        
+        // // Write the JSON string to the file.
+        // System.IO.File.WriteAllText(path, jsonString);
+        
+        // // Optional: Print the path to the console so you know where the file is saved.
+        // UnityEngine.Debug.Log("JSON saved to: " + path);
+
+        // Fetch the file names from the specified directory
+        string[] fileNames = GetFileNames("Assets/Prefabs");
+        
+        // Convert the array of file names into a single string, with each name on a new line
+        string fileNamesText = string.Join(Environment.NewLine, fileNames);
+        
+        // Define the path to save the file within your Unity project
+        string path = Application.dataPath + "/json2.txt";
+        
+        // Write the file names to the file
+        System.IO.File.WriteAllText(path, fileNamesText);
+        
+        // Log the path to the console for verification
+        UnityEngine.Debug.Log("File names saved to: " + path);
+
+    }
+
+ 
 }
 
 } // namespace AICommand

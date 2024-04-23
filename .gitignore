@@ -2,6 +2,12 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 *.swp
+/Test
+Test.meta
+Test.unity
+Test.unity.meta
+.vscode
+
 
 /Library
 /Logs

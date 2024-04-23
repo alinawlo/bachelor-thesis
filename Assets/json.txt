@@ -1,0 +1,55 @@
+{
+    "model": "gpt-3.5-turbo",
+    "temperature": 0.699999988079071,
+    "max_tokens": 1000,
+    "messages": [
+        {
+            "role": "system",
+            "content": "Act as a Unity developer and write a Unity Editor script."
+        },
+        {
+            "role": "user",
+            "content": "Add a menu item called \"Do Task\" under the \"Edit\" menu.\n"
+        },
+        {
+            "role": "user",
+            "content": "Use the UnityEditor.MenuItem attribute for creating the menu item.\n"
+        },
+        {
+            "role": "user",
+            "content": "The Script class extends EditorWindow and import UnityEditor.\n"
+        },
+        {
+            "role": "user",
+            "content": "When the \"Do Task\" menu item is clicked, it should immediately perform the specified task without opening any editor window.\n"
+        },
+        {
+            "role": "user",
+            "content": "Avoid using the GameObject.FindGameObjectsWithTag method in your script.\n"
+        },
+        {
+            "role": "user",
+            "content": "Instead of using a selected object, find game objects manually within the script using GameObject.Instantiate.\n"
+        },
+        {
+            "role": "user",
+            "content": "Do not use prefabs for creating light and a camera, use new components.\n"
+        },
+        {
+            "role": "user",
+            "content": "Avoid using the GameObject.Instantiate method in your script, use AssetDatabase.LoadAssetAtPath instead\n"
+        },
+        {
+            "role": "user",
+            "content": "Provide only the script body, with no explanations.\n"
+        },
+        {
+            "role": "user",
+            "content": "The class name should be UnityEditorScript and the method name should be RunTask.\n"
+        },
+        {
+            "role": "user",
+            "content": "The task is described as follows:\nThe task is described as follows:\n\n@\"Create the XR Interaction Setup:\n1. In the Project window, navigate to Assets/SimpleNaturePack/Prefabs/.\n2. Drag and drop the XR_Interaction_Setup.prefab into the Hierarchy window.\n3. With the XR_Interaction_Setup object selected in the Hierarchy, set the Transform Position to (0, 0, 0) in the Inspector window.\n4. Set the Scale to (1, 1, 1) to keep the XR Interaction Setup at its original size.\n"
+        }
+    ]
+}

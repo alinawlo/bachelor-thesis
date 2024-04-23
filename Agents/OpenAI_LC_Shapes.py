@@ -36,7 +36,7 @@ In your guide, please ensure that all steps are formulated as follows:
 13. when genereating the elements, make sure to stick to this scene description: {scene_description}.
 
 A a step to create a Directional lighting Component suitable for the scene using a directional light component, not from a prefab. It's rotation values should be (50,-30,0).
-Add a step to create an "XR_Interaction_Setup" object to the scene from the assets list {assets_list}.
+Add a step to create an "XR_Interaction_Setup" object to the scene by adding the prefab from this path Assets/Prefabs/XR_Interaction_Setup.prefab.
 
 Please follow this format for each step in your guide to ensure clarity and consistency. 
 

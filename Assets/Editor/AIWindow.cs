@@ -73,11 +73,11 @@ public sealed class AIStoryWindow : EditorWindow
             UnityEngine.Debug.Log(prompt);
             
             var code = OpenAIScriptGenerator.InvokeChat(SystemContext(), WrapPrompt(prompt),
-              "AI Story", "Generate Step "+i+"/"+maxRun);  
+              "Scene Generator", "Generate Step "+i+"/"+maxRun);  
             
             if(shapes){
               code = OpenAIShapesGenerator.InvokeChat(SystemContext(), WrapPrompt(prompt),
-              "AI Story", "Generate Step "+i+"/"+maxRun);
+              "Scene Generator", "Generate Step "+i+"/"+maxRun);
             }
 
             // Define the regular expression pattern
@@ -164,8 +164,8 @@ public sealed class AIStoryWindow : EditorWindow
     bool IsApiKeyOk
       => !string.IsNullOrEmpty(AISettings.instance.apiKey);
 
-    [MenuItem("Window/AI Story")]
-    static void Init() => GetWindow<AIStoryWindow>(true, "AI Story");
+    [MenuItem("Window/Scene Generator")]
+    static void Init() => GetWindow<AIStoryWindow>(true, "Scene Generator");
 
     private int _selectedModeIndex = 0;
     private readonly string[] modes = new string[] { "New Scene", "New Object", "Edit Object" };
@@ -200,13 +200,25 @@ public sealed class AIStoryWindow : EditorWindow
 
             EditorGUILayout.LabelField("Running Step:", EditorStyles.boldLabel);
 
+            // GUIStyle myTextAreaStyle3 = new GUIStyle(EditorStyles.textArea);
+            // myTextAreaStyle3.wordWrap = true;
+            // myTextAreaStyle3.stretchHeight = true;
+            // myTextAreaStyle3.stretchWidth = true;
+            // myTextAreaStyle3.fixedHeight = 425;
+            // myTextAreaStyle3.fontSize = 18;
+            // _prompt = EditorGUILayout.TextArea(_prompt,myTextAreaStyle3);
+
             GUIStyle myTextAreaStyle3 = new GUIStyle(EditorStyles.textArea);
             myTextAreaStyle3.wordWrap = true;
             myTextAreaStyle3.stretchHeight = true;
             myTextAreaStyle3.stretchWidth = true;
             myTextAreaStyle3.fixedHeight = 425;
             myTextAreaStyle3.fontSize = 18;
-            _prompt = EditorGUILayout.TextArea(_prompt,myTextAreaStyle3);
+
+            // Disable GUI to make the text area read-only
+            GUI.enabled = false;
+            _prompt = EditorGUILayout.TextArea(_prompt, myTextAreaStyle3);
+            GUI.enabled = true;
 
 
             //GUI.enabled = true;
@@ -258,7 +270,7 @@ public sealed class AIStoryWindow : EditorWindow
         var progress = 0.1f;
         for (var i = 0; i < 3; i++)
         {
-            EditorUtility.DisplayProgressBar("AI Story", "Generate steps based on story...", progress);
+            EditorUtility.DisplayProgressBar("Scene Generator", "Generate steps based on story...", progress);
             System.Threading.Thread.Sleep(1000);
             progress += 0.3f;
         }

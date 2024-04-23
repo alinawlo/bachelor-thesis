@@ -5,7 +5,6 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 
-
 # Set the OpenAI API key
 os.environ['OPENAI_API_KEY'] = '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'
 
@@ -24,7 +23,7 @@ The guide should also be as technical and detailed as possible, without the need
 In your guide, please ensure that all steps are formulated as follows:
 1. Clearly state the action to be performed (e.g., "Create a tree using Editor/Tree_01.prefab").
 2. Make sure not to alter the path to the prefab.
-3. Provide specific instructions on where to click and what to select.
+3. Provide specific instructions on where to click and what to select (e.g., "Right-click in the Hierarchy, select 3D Object > Cube").
 4. Specify the values for the element's scale (e.g., "Set Scale to (1, 0.1, 1) for the first pathway segment").
 5. Specify the values for the element's  transform position (e.g., "Set the Transform Position to (0, 1, 0)").
 6. If element should be on the ground in a realistic situation set its y-Axis position value to 0.89.
@@ -41,8 +40,8 @@ In your guide, please ensure that all steps are formulated as follows:
 17. Do not provide an introduction to the results.
 18. when genereating the elements, make sure to stick to this scene description: {scene_description}.
 
-Create a camera Game Object position suitable for the scene using a camera component, not from a prefab.
-Create a lighting Game Object suitable for the scene using a light component, not from a prefab.
+Create a camera Component suitable for the scene using a camera component, not from a prefab.
+Create a lighting Component suitable for the scene using a light component, not from a prefab.
 
 
 Please follow this format for each step in your guide to ensure clarity and consistency.

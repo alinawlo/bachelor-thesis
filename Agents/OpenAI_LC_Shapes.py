@@ -29,9 +29,14 @@ In your guide, please ensure that all steps are formulated as follows:
 6. Provide a substep for elements written in plural that need to be duplicated (e.g., "Duplicate 'Pathway1' in the Hierarchy to create more pathway segments, adjusting their Transform Positions to create a continuous pathway through the garden"). 
 7. Ensure that all shapes to create a certain element are attached to each other. 
 8. Avoid overlapping of different elements. 
-9. Do not include subtitles within each step. 
-10. Make sure that all elements are on top of the ground. 
-11. The response should not require the need for Unity Editor Scripts or any specific functionality, interactivity, or navigation options. 
+9. Do not include subtitles within each step.
+10. Do not place duplicate items in a straight line. 
+11. Make sure that all elements are attached to the ground and are not flying around.
+12. The response should not require the need for Unity Editor Scripts or any specific functionality, interactivity, or navigation options. 
+13. when genereating the elements, make sure to stick to this scene description: {scene_description}.
+
+Create a camera Component suitable for the scene not from a prefab.
+Create a lighting Component suitable for the scene using a light component, not from a prefab.
 
 Please follow this format for each step in your guide to ensure clarity and consistency. 
 

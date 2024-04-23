@@ -38,7 +38,7 @@ static class OpenAIScriptGenerator
 
         var msg3_3 = new OpenAI.RequestMessage();
         msg3_3.role = "user";
-        msg3_3.content = "Do not use prefab game objects for creating directional light and a camera. Always create new game objects.\n";
+        msg3_3.content = "Do not use prefabs for creating light and a camera, use new components.\n";
 
         var msg3_4 = new OpenAI.RequestMessage();
         msg3_4.role = "user";
@@ -63,20 +63,7 @@ static class OpenAIScriptGenerator
         req.messages = new [] { sysMsg, msg1, msg1_2, msg1_3, msg2, msg3, msg3_2, msg3_3, msg3_4, msg4, msg4_2, msg };
 
         string jsonString = JsonUtility.ToJson(req, true);
-        SaveJsonToFile(jsonString);     
         return JsonUtility.ToJson(req);
-    }
-
-    static void SaveJsonToFile(string jsonString)
-    {
-        // Path to save the file within your Unity project. Adjust the path as necessary.
-        string path = Application.dataPath + "/json.txt";
-        
-        // Write the JSON string to the file.
-        System.IO.File.WriteAllText(path, jsonString);
-        
-        // Optional: Print the path to the console so you know where the file is saved.
-        Debug.Log("JSON saved to: " + path);
     }
 
 

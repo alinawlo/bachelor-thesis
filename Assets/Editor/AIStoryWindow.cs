@@ -19,7 +19,7 @@ public sealed class AIStoryWindow : EditorWindow
     const string TempFilePath = "Assets/Editor/AIStoryStep.cs";
     private bool TempFileExists => System.IO.File.Exists(TempFilePath);
     const string TempFilePathEnd = "Temp.cs";
-    const string directoryPath = "Assets/SimpleNaturePack/Prefabs";
+    const string directoryPath = "Assets/Prefabs";
 
 
     void CreateStoryAsset(string storyStepFileNr, string storyStepCode)
@@ -214,7 +214,7 @@ public sealed class AIStoryWindow : EditorWindow
               EditorCoroutineUtility.StartCoroutine(ClearTempFiles(),this);
 
               string[] fileNames = GetFileNames(directoryPath);
-              SaveJsonToFile(_story);
+              //SaveJsonToFile(_story);
               
               if(shapes){
                 if(_selectedModeIndex==0){
@@ -401,33 +401,33 @@ public sealed class AIStoryWindow : EditorWindow
 
 
 
-    static void SaveJsonToFile(string jsonString)
-    {
-        // // Path to save the file within your Unity project. Adjust the path as necessary.
-        // string path = Application.dataPath + "/json2.txt";
+    // static void SaveJsonToFile(string jsonString)
+    // {
+    //     // // Path to save the file within your Unity project. Adjust the path as necessary.
+    //     // string path = Application.dataPath + "/json2.txt";
         
-        // // Write the JSON string to the file.
-        // System.IO.File.WriteAllText(path, jsonString);
+    //     // // Write the JSON string to the file.
+    //     // System.IO.File.WriteAllText(path, jsonString);
         
-        // // Optional: Print the path to the console so you know where the file is saved.
-        // UnityEngine.Debug.Log("JSON saved to: " + path);
+    //     // // Optional: Print the path to the console so you know where the file is saved.
+    //     // UnityEngine.Debug.Log("JSON saved to: " + path);
 
-        // Fetch the file names from the specified directory
-        string[] fileNames = GetFileNames("Assets/SimpleNaturePack/Prefabs");
+    //     // Fetch the file names from the specified directory
+    //     string[] fileNames = GetFileNames("Assets/SimpleNaturePack/Prefabs");
         
-        // Convert the array of file names into a single string, with each name on a new line
-        string fileNamesText = string.Join(Environment.NewLine, fileNames);
+    //     // Convert the array of file names into a single string, with each name on a new line
+    //     string fileNamesText = string.Join(Environment.NewLine, fileNames);
         
-        // Define the path to save the file within your Unity project
-        string path = Application.dataPath + "/json2.txt";
+    //     // Define the path to save the file within your Unity project
+    //     string path = Application.dataPath + "/json2.txt";
         
-        // Write the file names to the file
-        System.IO.File.WriteAllText(path, fileNamesText);
+    //     // Write the file names to the file
+    //     System.IO.File.WriteAllText(path, fileNamesText);
         
-        // Log the path to the console for verification
-        UnityEngine.Debug.Log("File names saved to: " + path);
+    //     // Log the path to the console for verification
+    //     UnityEngine.Debug.Log("File names saved to: " + path);
 
-    }
+    // }
 
  
 }

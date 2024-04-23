@@ -49,7 +49,7 @@
         },
         {
             "role": "user",
-            "content": "The task is described as follows:\nThe task is described as follows:\n\n@\"Create the XR Interaction Setup:\n1. In the Project window, navigate to Assets/SimpleNaturePack/Prefabs/.\n2. Drag and drop the XR_Interaction_Setup.prefab into the Hierarchy window.\n3. With the XR_Interaction_Setup object selected in the Hierarchy, set the Transform Position to (0, 0, 0) in the Inspector window.\n4. Set the Scale to (1, 1, 1) to keep the XR Interaction Setup at its original size.\n"
+            "content": "The task is described as follows:\nThe task is described as follows:\n\n@\"Create the XR Interaction Setup:\n1. Drag and drop the 'Assets/Prefabs/XR_Interaction_Setup.prefab' into the Hierarchy.\n2. Set the Transform Position to (0, 0, 0) to place it at the center of the scene.\n3. Set the Scale to (1, 1, 1) to keep its original size.\"\n"
         }
     ]
 }

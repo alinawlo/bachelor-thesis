@@ -156,8 +156,8 @@ namespace AICommand {
 
         #region Editor GUI
 
-        static string _story ="";
-        private string _prompt = "";
+        static string _prompt ="";
+        private string _step = "";
 
         const string ApiKeyErrorText =
         "API Key hasn't been set. Please check the project settings " +
@@ -204,7 +204,7 @@ namespace AICommand {
                 myTextAreaStyle2.stretchWidth = true;
                 myTextAreaStyle2.fixedHeight = 250;
                 myTextAreaStyle2.fontSize = 18;
-                _story = EditorGUILayout.TextArea(_story,myTextAreaStyle2);
+                _prompt = EditorGUILayout.TextArea(_prompt,myTextAreaStyle2);
 
                 EditorGUILayout.LabelField("Running Step:", EditorStyles.boldLabel);
 
@@ -217,7 +217,7 @@ namespace AICommand {
 
                 // Disable GUI to make the text area read-only
                 GUI.enabled = false;
-                _prompt = EditorGUILayout.TextArea(_prompt, myTextAreaStyle3);
+                _step = EditorGUILayout.TextArea(_step, myTextAreaStyle3);
                 GUI.enabled = true;
 
 
@@ -226,28 +226,27 @@ namespace AICommand {
                     EditorCoroutineUtility.StartCoroutine(ClearTempFiles(),this);
 
                     string[] fileNames = GetFileNames(directoryPath);
-                    //SaveJsonToFile(_story);
                     
                     if(shapes){
                         if(_selectedModeIndex==0){
                             EditorCoroutineUtility.StartCoroutine(GenerateSteps(shapes), this);
-                            myArray = run_agent("Agents/OpenAI_LC_Shapes.py", "",_story, fileNames).Split("/*step*/");
+                            myArray = run_agent("Agents/OpenAI_LC_Shapes.py", "",_prompt, fileNames).Split("/*step*/");
                         }else if(_selectedModeIndex==1){
                             EditorCoroutineUtility.StartCoroutine(GenerateSteps(shapes), this);
-                            myArray = new string [] {run_agent("Agents/OpenAI_LC_Shapes_Object.py", "",_story, fileNames)};
+                            myArray = new string [] {run_agent("Agents/OpenAI_LC_Shapes_Object.py", "",_prompt, fileNames)};
                         }
                     } else{
                         if(_selectedModeIndex==0){
                             EditorCoroutineUtility.StartCoroutine(GenerateSteps(shapes), this);
-                            myArray = run_agent("Agents/OpenAI_LLM.py", "",_story, fileNames).Split("/*step*/");
+                            myArray = run_agent("Agents/OpenAI_LLM.py", "",_prompt, fileNames).Split("/*step*/");
                         }else if(_selectedModeIndex==1){
                             EditorCoroutineUtility.StartCoroutine(GenerateSteps(shapes), this);
-                            myArray = new string [] {run_agent("Agents/OpenAI_LLM_Object.py", "",_story, fileNames)};
+                            myArray = new string [] {run_agent("Agents/OpenAI_LLM_Object.py", "",_prompt, fileNames)};
                         }
                     }
                         
                     if(_selectedModeIndex==2){                  
-                        RunGeneratorEdit(_story);
+                        RunGeneratorEdit(_prompt);
                     }
                 }
             }
@@ -264,7 +263,7 @@ namespace AICommand {
         private System.Collections.IEnumerator GenerateSteps(bool shapes)
         {
             UnityEngine.Debug.Log("Coroutine started!");
-            _prompt = "";
+            _step = "";
             doRepaint();
             // Progress bar, not accurate
             var progress = 0.1f;
@@ -283,13 +282,13 @@ namespace AICommand {
             for (int i = 1; i <= maxRun; i++)
             {
                 string prompt = myArray[i-1];
-                _prompt = prompt;
+                _step = prompt;
                 doRepaint();
                 yield return null;
                 RunGenerator(prompt, i, maxRun, shapes);
                 yield return null;
             }
-            _prompt = "";
+            _step = "";
             doRepaint();
             yield return null;
             UnityEngine.Debug.Log("Coroutine ended!");
@@ -303,9 +302,9 @@ namespace AICommand {
                 if (System.IO.File.Exists(storyStepScriptFileName)) {
                     try{
                         if (EditorApplication.ExecuteMenuItem("Edit/Story/Step"+i)) {
-                        UnityEngine.Debug.Log("Menu item executed successfully.");
+                            UnityEngine.Debug.Log("Menu item executed successfully.");
                         } else {
-                        UnityEngine.Debug.LogWarning("Menu item execution failed.");
+                            UnityEngine.Debug.LogWarning("Menu item execution failed.");
                         }
                         System.Threading.Thread.Sleep(1000);
                         //get filename from path
@@ -335,7 +334,9 @@ namespace AICommand {
             
             if(_selectedModeIndex==2){
                 UnityEngine.Debug.Log("Temp File: " + TempFileExists);
-                if (!TempFileExists) return;
+                if (!TempFileExists){
+                    return;
+                }
                 EditorApplication.ExecuteMenuItem("Edit/Do Task");
                 AssetDatabase.DeleteAsset(TempFilePath+"edit.cs");
             }
@@ -361,8 +362,8 @@ namespace AICommand {
 
             using(Process process = Process.Start(start)) {
                 using(StreamReader reader = process.StandardOutput) {
-                string result = reader.ReadToEnd();
-                return result;
+                    string result = reader.ReadToEnd();
+                    return result;
                 }
             }
         }
@@ -390,10 +391,10 @@ namespace AICommand {
                 foreach (string file in files)
                 {
                 if (Path.GetFileName(file).StartsWith("AIStoryStep") && !Path.GetFileName(file).EndsWith("edit.cs"))
-                {
-                    File.Delete(file);
-                    UnityEngine.Debug.Log("Deleted file: " + file);
-                }
+                    {
+                        File.Delete(file);
+                        UnityEngine.Debug.Log("Deleted file: " + file);
+                    }
                 }
                 AssetDatabase.Refresh();
                 UnityEngine.Debug.Log("All files in 'Assets/Editor' have been deleted.");

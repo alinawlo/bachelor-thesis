@@ -1,5 +1,5 @@
 import sys
-import os
+import re
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
@@ -7,11 +7,24 @@ from langchain.chat_models import ChatOpenAI
 
 
 # Set the OpenAI API key
-os.environ['OPENAI_API_KEY'] = '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'
+def get_api_key_from_asset(file_path):
+    # Read the .asset file
+    with open(file_path, 'r') as file:
+        content = file.read()
+    
+    # Regex to find the apiKey line
+    match = re.search(r'apiKey: \'([^\']+)\'', content)
+    if match:
+        return match.group(1).strip()
+    else:
+        raise ValueError("API key not found in .asset file")
+
+# Specify the path to the AISettings.asset file
+settings_file_path = 'UserSettings/AISettings.asset'
+api_key = get_api_key_from_asset(settings_file_path)
 
 # Initialize the OpenAI model
-#llm = OpenAI(model_name='text-davinci-003', temperature=0.9, max_tokens=1000)
-llm= ChatOpenAI(model_name='gpt-4', temperature=0.3, max_tokens=3000)
+llm= ChatOpenAI(model_name='gpt-4', temperature=0.3, max_tokens=3000, api_key=api_key)
 
 
 # Define the scene template
@@ -39,7 +52,7 @@ In your guide, please ensure that all steps are formulated as follows:
 15. Always opt to use prefabs rather than creating the objects from scratch.
 16. Do not duplicate the element if the prompt expliticitly says to create a single instance of the element.
 17. Do not provide an introduction to the results.
-18. when genereating the elements, make sure to stick to this scene description: {scene_description}.
+18. When generating the elements, make sure to stick to this scene description: {scene_description}.
 19. It has to be sunny in the scene.
 
 Add a step to create a Directional lighting Component suitable for the scene using a directional light component, not from a prefab. It's rotation values should be (50,-30,0).

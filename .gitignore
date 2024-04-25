@@ -4,13 +4,14 @@ Desktop.ini
 *.swp
 /Test
 Test.meta
-Test.unity
-Test.unity.meta
+*.unity
+*.unity.meta
 .vscode
-
+*.csproj
 
 /Library
 /Logs
 /Recordings
 /Temp
 /UserSettings
+/Builds

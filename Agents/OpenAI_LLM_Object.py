@@ -1,16 +1,29 @@
 import sys
-import os
+import re
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
 
 # Set the OpenAI API key
-os.environ['OPENAI_API_KEY'] = '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'
+def get_api_key_from_asset(file_path):
+    # Read the .asset file
+    with open(file_path, 'r') as file:
+        content = file.read()
+    
+    # Regex to find the apiKey line
+    match = re.search(r'apiKey: \'([^\']+)\'', content)
+    if match:
+        return match.group(1).strip()
+    else:
+        raise ValueError("API key not found in .asset file")
+
+# Specify the path to the AISettings.asset file
+settings_file_path = 'UserSettings/AISettings.asset'
+api_key = get_api_key_from_asset(settings_file_path)
 
 # Initialize the OpenAI model
-# llm = OpenAI(model_name='gpt-3.5-turbo-instruct', temperature=0, max_tokens=1000)
-llm= ChatOpenAI(model_name='gpt-4', temperature=0.1, max_tokens=2000)
+llm= ChatOpenAI(model_name='gpt-4', temperature=0.3, max_tokens=2000, api_key=api_key)
 
 
 # Define the scene template

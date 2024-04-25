@@ -1,5 +1,5 @@
 import sys
-import os
+import re
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
@@ -8,11 +8,24 @@ from langchain.chat_models import ChatOpenAI
 
 
 # Set the OpenAI API key
-os.environ['OPENAI_API_KEY'] = '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'
+def get_api_key_from_asset(file_path):
+    # Read the .asset file
+    with open(file_path, 'r') as file:
+        content = file.read()
+    
+    # Regex to find the apiKey line
+    match = re.search(r'apiKey: \'([^\']+)\'', content)
+    if match:
+        return match.group(1).strip()
+    else:
+        raise ValueError("API key not found in .asset file")
+
+# Specify the path to the AISettings.asset file
+settings_file_path = 'UserSettings/AISettings.asset'
+api_key = get_api_key_from_asset(settings_file_path)
 
 # Initialize the OpenAI model
-#llm = OpenAI(model_name='text-davinci-003', temperature=0.9, max_tokens=1000)
-llm= ChatOpenAI(model_name='gpt-4', temperature=0.3, max_tokens=3000)
+llm= ChatOpenAI(model_name='gpt-4', temperature=0.3, max_tokens=3000, api_key=api_key)
 
 
 # Define the scene template
@@ -33,7 +46,8 @@ In your guide, please ensure that all steps are formulated as follows:
 10. Do not place duplicate items in a straight line. 
 11. Make sure that all elements are attached to the ground and are not flying around.
 12. The response should not require the need for Unity Editor Scripts or any specific functionality, interactivity, or navigation options. 
-13. when genereating the elements, make sure to stick to this scene description: {scene_description}.
+13. When generating the elements, make sure to stick to this scene description: {scene_description}.
+14. Color the objects by changing the value of the sharedMaterial's color of thier MeshRenderer component.
 
 A a step to create a Directional lighting Component suitable for the scene using a directional light component, not from a prefab. It's rotation values should be (50,-30,0).
 Add a step to create an "XR_Interaction_Setup" object to the scene by adding the prefab from this path Assets/Prefabs/XR_Interaction_Setup.prefab.

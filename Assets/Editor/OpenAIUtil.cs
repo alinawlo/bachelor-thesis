@@ -15,9 +15,9 @@ namespace AICommand {
 
             var req = new OpenAI.Request
             {
-                model = "gpt-3.5-turbo",
+                model = "gpt-4",
                 messages = new[] { msg },
-                max_tokens = 300 // Example: setting max_tokens to 50
+                max_tokens = 300
             };
 
             return JsonUtility.ToJson(req);
@@ -44,7 +44,7 @@ namespace AICommand {
             for (var progress = 0.0f; !req.isDone; progress += 0.01f)
             {
                 EditorUtility.DisplayProgressBar
-                ("AI Command", "Generating...", progress);
+                ("Scene Generator", "Generating...", progress);
                 System.Threading.Thread.Sleep(100);
                 progress += 0.01f;
             }

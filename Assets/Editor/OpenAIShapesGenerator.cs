@@ -57,7 +57,7 @@ namespace AICommand {
             msg.content = "The task is described as follows:\n" + prompt;
 
             var req = new OpenAI.Request();
-            req.model = "gpt-4;
+            req.model = "gpt-4";
             req.temperature = 0.7f;
             req.max_tokens = 1000;
             req.messages = new [] { sysMsg, msg1, msg1_2, msg1_3, msg2, msg3, msg3_2, msg3_3, msg3_4, msg4, msg4_2, msg };

@@ -2,9 +2,19 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 *.swp
+/Test
+Test.meta
+*.unity
+*.unity.meta
+.vscode
+*.csproj
+*.sln
+*.bak.cs
+*.bak.cs.meta
 
 /Library
 /Logs
 /Recordings
 /Temp
 /UserSettings
+/Builds

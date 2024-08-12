@@ -1,5 +1,8 @@
 # Bachelor Thesis
 
+![](ba-demo.gif)
+
+
 ## How to try it
 
 You have to generate an API key to use the ChatGPT API. Please generate it on

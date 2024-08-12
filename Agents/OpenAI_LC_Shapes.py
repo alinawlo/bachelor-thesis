@@ -3,9 +3,6 @@ import re
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from langchain.chat_models import ChatOpenAI
-
-
 
 # Set the OpenAI API key
 def get_api_key_from_asset(file_path):
@@ -25,7 +22,7 @@ settings_file_path = 'UserSettings/AISettings.asset'
 api_key = get_api_key_from_asset(settings_file_path)
 
 # Initialize the OpenAI model
-llm= ChatOpenAI(model_name='gpt-4', temperature=0.3, max_tokens=3000, api_key=api_key)
+llm= OpenAI(model_name='gpt-4', temperature=0.3, max_tokens=3000, api_key=api_key)
 
 
 # Define the scene template

@@ -16,7 +16,6 @@ namespace AICommand {
             Save(true);            
             // Set the environment variable for the API key
             Environment.SetEnvironmentVariable("OPENAI_API_KEY", apiKey, EnvironmentVariableTarget.User);
-            Environment.SetEnvironmentVariable("PYTHON_PATH", pythonPath, EnvironmentVariableTarget.User);
         }
         void OnDisable() => Save();
     }

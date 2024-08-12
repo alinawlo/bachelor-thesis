@@ -9,6 +9,8 @@ Test.meta
 .vscode
 *.csproj
 *.sln
+*.bak.cs
+*.bak.cs.meta
 
 /Library
 /Logs

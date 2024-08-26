@@ -1,4 +1,4 @@
-# Bachelor Thesis
+# Generative AI Assisted Scenes Generation for the Metaverse
 
 ![](ba-demo.gif)
 
